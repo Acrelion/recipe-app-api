@@ -1,0 +1,17 @@
+version: "3"
+
+# We will have a service called app
+# build section for configuration is .
+services:
+  app:
+    build:
+      context: .
+    ports:
+    - "8000:8000"
+    # volume - maps volume from local machine to Docker
+    # container that will be running the application
+    volumes:
+    - ./app:/app
+    # command used to run our app in our Docker container
+    command: >
+     sh -c "python manage.py runserver 0.0.0.0:8000"
