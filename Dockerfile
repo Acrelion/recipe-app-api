@@ -6,7 +6,20 @@ ENV PYTHONUNBUFFERED 1
 
 # Copy the file to the image
 COPY ./requirements.txt /requirements.txt
+
+# --update - This tells the package manager to update the package index
+# before installing packages (similar to running apt-get update
+# on a Ubuntu based OS)
+# --no-cache - do not sore the index on the Docker image to keep it lean
+RUN apk add --update --no-cache postgresql-client
+# --virtual .tmp-build-deps - This tells the package manager to store any dependencies
+# under the virtual name ".tmp-build-deps", which allows us to remove installed packages
+# in one go (we do this here)
+RUN apk add --update --no-cache --virtual .tmp-build-deps \
+    gcc libc-dev linux-headers postgresql-dev
 RUN pip install -r /requirements.txt
+# delete temp requirements
+RUN apk del .tmp-build-deps
 
 # Create app folder in image, switch to, copy app (project) to /app in image
 RUN mkdir /app
