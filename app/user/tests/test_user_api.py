@@ -5,8 +5,8 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
 
-
 CREATE_USER_URL = reverse('user:create')
+
 
 def create_user(**params):
     return get_user_model().objects.create_user(**params)
@@ -20,12 +20,12 @@ class PublicUserApiTests(TestCase):
 
     def test_create_valid_user_success(self):
         """Test creating user with valid payload is successful"""
-        payload= {
+        payload = {
             'email': 'first@user.com',
             'password': 'SomeStrongPass312',
             'name': 'Some Name'
         }
-        res = self.client.post(payload, CREATE_USER_URL)
+        res = self.client.post(CREATE_USER_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
@@ -39,12 +39,13 @@ class PublicUserApiTests(TestCase):
         """Creating a user that already exists"""
         payload = {
             'email': 'second@user.com',
-            'password': 'SomeOtherPass333'
+            'password': 'SomeOtherPass333',
+            'name': 'Sun'
         }
         # init create user (so we already have it)
         create_user(**payload)
         # try to create user that exists
-        res = self.client.post(payload, CREATE_USER_URL)
+        res = self.client.post(CREATE_USER_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -52,9 +53,10 @@ class PublicUserApiTests(TestCase):
         """Password must be more than 5 characters"""
         payload = {
             'email': 'second@user.com',
-            'password': 'pw'
+            'password': 'pw',
+            'name': 'Hello'
         }
-        res = self.client.post(payload, CREATE_USER_URL)
+        res = self.client.post(CREATE_USER_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         user_exists = get_user_model().objects.filter(
